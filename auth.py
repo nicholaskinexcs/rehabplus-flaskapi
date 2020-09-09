@@ -6,6 +6,7 @@ import hmac
 import hashlib
 import base64
 import json
+import srp
 
 USER_POOL_ID = 'ap-southeast-1_pfjxa1vNH'
 CLIENT_ID = '2k4evm55f7224e3bg54nhfpot'
@@ -244,5 +245,31 @@ class ConfirmForgotPassword(Resource):
                 "message": f"Password has been changed successfully",
                 "data": None}
 
-#class Login(Resource):
-#    def post(self):
+class Login(Resource):
+    def post(self):
+        client = boto3.client('cognito-idp')
+        data = request.get_json()
+        email = data['email']
+        password = data['password']
+        device_info = data[device]
+        secret_hash = get_secret_hash(email)
+
+        try:
+            response = client.initiate_auth(
+                AuthFlow = 'USER_SRP_AUTH',
+                AuthParameters = {
+                    'USERNAME': email,
+                    'PASSWORD': password,
+                    'SECRET_HASH': secret_hash
+                },
+                ClientId = CLIENT_ID
+            )
+
+        except Exception as e:
+            return {"error": True,
+                    "success": False,
+                    "data": None,
+                    "message": f"Unknown error {e.__str__()} "}
+        print(response['ChallengeParameters'].keys())
+        #'DeviceKey': response['AuthenticationResult']['NewDeviceMetadata']['DeviceKey']
+        return response

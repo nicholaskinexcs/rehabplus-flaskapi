@@ -13,6 +13,8 @@ api.add_resource(SignUp, '/signup')
 api.add_resource(ConfirmSignUp, '/confirmSignUp')
 api.add_resource(ResendVerifictionCode, '/resendVerificationCode')
 api.add_resource(ForgotPassword, '/forgotPassword')
+api.add_resource(ConfirmForgotPassword, '/confirmforgotPassword')
+api.add_resource(Login, '/login')
 
 if __name__ == '__main__':
     app.run(host='10.0.9.203', port=5000, debug=True)
