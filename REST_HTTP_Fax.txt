@@ -1,0 +1,10 @@
+PUT : create / update by override, completely replacing the resource (This ensures that one file is ever created and updated)
+POST : create /update and then some (no restriction to the exact URI or notifiy, for examplePOST can append a resource to an existing collection and decide where it's stored.)
+PATCH : submits a partial modification to a resource
+DELETE : server only responds with a success unless the resource has been deleted or moved to an inaccessible location
+GET: can be used for any sort of query
+
+Create - PUT
+Read - GET
+Update - PUT (full replacement) / PATCH (partial replacement)
+Delete - DELETE
