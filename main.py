@@ -15,6 +15,8 @@ api.add_resource(ResendVerifictionCode, '/resendVerificationCode')
 api.add_resource(ForgotPassword, '/forgotPassword')
 api.add_resource(ConfirmForgotPassword, '/confirmforgotPassword')
 api.add_resource(Login, '/login')
+api.add_resource(Logout, '/logout')
+api.add_resource(GetUser, '/getUser')
 
 if __name__ == '__main__':
     app.run(host='172.20.10.2', port=5000, debug=True)
