@@ -18,10 +18,11 @@ import secrets
 import os
 import random
 
-
 USER_POOL_ID = 'ap-southeast-1_pfjxa1vNH'
 CLIENT_ID = 'ld4tq1kmq34qttjpp5cniqh8o'
-#sign out use global_sign_out: signs out of all devices
+
+
+# sign out use global_sign_out: signs out of all devices
 
 class SignUp(Resource):
 
@@ -35,13 +36,12 @@ class SignUp(Resource):
         email = signupInfo['email']
         password = signupInfo['password']
 
-
         try:
             response = client.sign_up(
-                ClientId = CLIENT_ID,
-                Username = email,
-                Password = password,
-                UserAttributes = [
+                ClientId=CLIENT_ID,
+                Username=email,
+                Password=password,
+                UserAttributes=[
                     {
                         'Name': 'email',
                         'Value': email
@@ -59,7 +59,7 @@ class SignUp(Resource):
                         'Value': phone_number
                     },
                 ],
-                ValidationData = [
+                ValidationData=[
                     {
                         'Name': 'email',
                         'Value': email
@@ -68,32 +68,33 @@ class SignUp(Resource):
             )
         except client.exceptions.UsernameExistsException as e:
             return {"error": True,
-                   "success": False,
-                   "message": "This username already exists",
-                   "data": None}
+                    "success": False,
+                    "message": "This username already exists",
+                    "data": None}
         except client.exceptions.InvalidPasswordException as e:
 
             return {"error": True,
-                   "success": False,
-                   "message": "Password should have Caps,\
+                    "success": False,
+                    "message": "Password should have Caps,\
                               Special chars, Numbers",
-                   "data": None}
+                    "data": None}
         except client.exceptions.UserLambdaValidationException as e:
             return {"error": True,
-                   "success": False,
-                   "message": "Email already exists",
-                   "data": None}
+                    "success": False,
+                    "message": "Email already exists",
+                    "data": None}
 
         except Exception as e:
             return {"error": True,
                     "success": False,
                     "message": str(e),
-                   "data": phone_number}
+                    "data": phone_number}
 
         return {"error": False,
                 "success": True,
                 "message": "Please confirm your signup, check Email for verification code",
                 "data": response['UserSub']}
+
 
 class ConfirmSignUp(Resource):
     def post(self):
@@ -106,10 +107,10 @@ class ConfirmSignUp(Resource):
 
         try:
             response = client.confirm_sign_up(
-            ClientId = CLIENT_ID,
-            Username = email,
-            ConfirmationCode = code,
-            ForceAliasCreation = False,
+                ClientId=CLIENT_ID,
+                Username=email,
+                ConfirmationCode=code,
+                ForceAliasCreation=False,
             )
         except client.exceptions.UserNotFoundException:
             return {"error": True,
@@ -135,6 +136,7 @@ class ConfirmSignUp(Resource):
                 "message": "Account Validated, Proceed to sign in",
                 "data": None}
 
+
 class ResendVerifictionCode(Resource):
     def post(self):
         client = boto3.client('cognito-idp')
@@ -143,12 +145,12 @@ class ResendVerifictionCode(Resource):
 
         try:
             response = client.resend_confirmation_code(
-            ClientId = CLIENT_ID,
-            Username = email,
+                ClientId=CLIENT_ID,
+                Username=email,
             )
 
         except client.exceptions.UserNotFoundException:
-            return {"error": True, "success": False, "message":   "Username doesnt exists"}
+            return {"error": True, "success": False, "message": "Username doesnt exists"}
 
         except client.exceptions.InvalidParameterException:
             return {"error": True, "success": False, "message": "User is already confirmed"}
@@ -158,6 +160,7 @@ class ResendVerifictionCode(Resource):
 
         return {"error": False, "success": True, "message": "Verification vode sent, check Email for verification code"}
 
+
 class ForgotPassword(Resource):
     def post(self):
         client = boto3.client('cognito-idp')
@@ -166,8 +169,8 @@ class ForgotPassword(Resource):
 
         try:
             response = client.forgot_password(
-            ClientId = CLIENT_ID,
-            Username = email,
+                ClientId=CLIENT_ID,
+                Username=email,
             )
 
         except client.exceptions.UserNotFoundException:
@@ -180,7 +183,7 @@ class ForgotPassword(Resource):
             return {"error": True,
                     "success": False,
                     "data": None,
-                  "message": f"User <{username}> is not confirmed yet"}
+                    "message": f"User <{email}> is not confirmed yet"}
 
         except client.exceptions.NotAuthorizedException:
             return {"error": True,
@@ -195,10 +198,11 @@ class ForgotPassword(Resource):
                     "message": f"Uknown    error {e.__str__()} "}
 
         return {
-             "error": False,
-             "success": True,
-             "message": f"Please check your Registered email id for validation code",
-             "data": None}
+            "error": False,
+            "success": True,
+            "message": f"Please check your Registered email id for validation code",
+            "data": None}
+
 
 class ConfirmForgotPassword(Resource):
     def post(self):
@@ -210,28 +214,28 @@ class ConfirmForgotPassword(Resource):
 
         try:
             client.confirm_forgot_password(
-                ClientId = CLIENT_ID,
-                Username = email,
-                ConfirmationCode = code,
-                Password = password
+                ClientId=CLIENT_ID,
+                Username=email,
+                ConfirmationCode=code,
+                Password=password
             )
         except client.exceptions.UserNotFoundException as e:
             return {"error": True,
                     "success": False,
-                    "data":  None,
+                    "data": None,
                     "message": "Username doesnt exists"}
 
         except client.exceptions.CodeMismatchException as e:
-                return {"error": True,
-                       "success": False,
-                       "data": None,
-                       "message": "Invalid Verification code"}
+            return {"error": True,
+                    "success": False,
+                    "data": None,
+                    "message": "Invalid Verification code"}
 
         except client.exceptions.NotAuthorizedException as e:
             return {"error": True,
-                     "success": False,
-                     "data": None,
-                     "message": "User is already confirmed"}
+                    "success": False,
+                    "data": None,
+                    "message": "User is already confirmed"}
 
         except Exception as e:
             return {"error": True,
@@ -243,6 +247,7 @@ class ConfirmForgotPassword(Resource):
                 "success": True,
                 "message": f"Password has been changed successfully",
                 "data": None}
+
 
 def generate_hash_device(device_group_key, device_key):
     # source: https://github.com/amazon-archives/amazon-cognito-identity-js/blob/6b87f1a30a998072b4d98facb49dcaf8780d15b0/src/AuthenticationHelper.js#L137
@@ -265,6 +270,7 @@ def generate_hash_device(device_group_key, device_key):
         "Salt": base64.standard_b64encode(bytearray.fromhex(salt)).decode('utf-8')
     }
     return device_password, device_secret_verifier_config
+
 
 class Login(Resource):
     def post(self):
@@ -291,13 +297,13 @@ class Login(Resource):
         aws = AWSSRP(username=email, password=password, pool_id=USER_POOL_ID,
                      client_id=CLIENT_ID, client=client)
         response = aws.authenticate_user()
-        #print(response['AuthenticationResult'].keys())
+        # print(response['AuthenticationResult'].keys())
 
         deviceKey = response['AuthenticationResult']['NewDeviceMetadata']['DeviceKey']
         deviceGroupKey = response['AuthenticationResult']['NewDeviceMetadata']['DeviceGroupKey']
         accessToken = response['AuthenticationResult']['AccessToken']
         print(accessToken)
-        #print(deviceKey)
+        # print(deviceKey)
 
         device_password, device_secret_verifier_config = generate_hash_device(deviceGroupKey, deviceKey)
         try:
@@ -317,16 +323,16 @@ class Login(Resource):
         return {"error": False,
                 "success": True,
                 "data": {'deviceKey': deviceKey,
-                        'deviceGroupKey': deviceGroupKey,
-                        'accessToken': accessToken},
+                         'deviceGroupKey': deviceGroupKey,
+                         'accessToken': accessToken},
                 "message": f"User logged in and device is remembered "}, 200
+
 
 class Logout(Resource):
     def post(self):
         client = boto3.client('cognito-idp')
         data = request.get_json()
         accessToken = data['accessToken']
-        email = data['email']
 
         response = client.global_sign_out(
             AccessToken=accessToken
@@ -334,15 +340,16 @@ class Logout(Resource):
 
         return 200
 
+
 class GetUser(Resource):
     def post(self):
         client = boto3.client('cognito-idp')
         data = request.get_json()
         accessToken = data['accessToken']
         u = Cognito(USER_POOL_ID, CLIENT_ID,
-            access_token=accessToken)
-        #response = u.verify_token(accessToken, 'access_token', 'access')
-        #response = u.get_user(attr_map={"Username":"uid", "given_name":"first_name","family_name":"last_name"})
+                    access_token=accessToken)
+        # response = u.verify_token(accessToken, 'access_token', 'access')
+        # response = u.get_user(attr_map={"Username":"uid", "given_name":"first_name","family_name":"last_name"})
         try:
             response = client.get_user(
                 AccessToken=accessToken
@@ -356,6 +363,6 @@ class GetUser(Resource):
         return {"error": False,
                 "success": True,
                 "data": {'uid': response['Username'],
-                        'email_verified': ((response['UserAttributes'])[1])['Value']
-                        },
+                         'email_verified': ((response['UserAttributes'])[1])['Value']
+                         },
                 "message": f"User logged in "}, 200
