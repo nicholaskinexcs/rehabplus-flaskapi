@@ -99,3 +99,35 @@ class RequestProfiles(Resource):
         )
         print(response['Items'])
         return response['Items']
+
+
+class clearNotification(Resource):
+    def post(self):
+        data = request.get_json()
+        patient_id = data['patientId']
+        notification_obj = data['notificationModel']
+        # print(notification_obj)
+        # need to get the list
+        patient_item = UserProfileData_table.get_item(
+            Key={
+                'uid': patient_id
+            }
+        )
+        notification_list = patient_item['Item']['notifications']
+        # print(notification_list)
+
+        # then find the index of the element
+        index = notification_list.index(notification_obj)
+        # print(index)
+
+        # then use REMOVE using the index of the item to remove it
+
+        response = UserProfileData_table.update_item(
+            Key={
+                'uid': patient_id
+            },
+            UpdateExpression='REMOVE notifications[' + str(index) + ']',
+            ReturnValues='ALL_NEW'
+        )
+        print(response)
+        return response
