@@ -104,13 +104,13 @@ class RequestProfiles(Resource):
 class clearNotification(Resource):
     def post(self):
         data = request.get_json()
-        patient_id = data['patientId']
+        user_id = data['userId']
         notification_obj = data['notificationModel']
         # print(notification_obj)
         # need to get the list
         patient_item = UserProfileData_table.get_item(
             Key={
-                'uid': patient_id
+                'uid': user_id
             }
         )
         notification_list = patient_item['Item']['notifications']
@@ -124,9 +124,41 @@ class clearNotification(Resource):
 
         response = UserProfileData_table.update_item(
             Key={
-                'uid': patient_id
+                'uid': user_id
             },
             UpdateExpression='REMOVE notifications[' + str(index) + ']',
+            ReturnValues='ALL_NEW'
+        )
+        print(response)
+        return response
+
+
+class clearPendingPatientRequest(Resource):
+    def post(self):
+        data = request.get_json()
+        patient_id = data['patientId']
+        clinician_id = data['clinicianId']
+        # print(notification_obj)
+        # need to get the list
+        patient_item = UserProfileData_table.get_item(
+            Key={
+                'uid': clinician_id
+            }
+        )
+        notification_list = patient_item['Item']['requests']
+        # print(notification_list)
+
+        # then find the index of the element
+        index = notification_list.index(patient_id)
+        # print(index)
+
+        # then use REMOVE using the index of the item to remove it
+
+        response = UserProfileData_table.update_item(
+            Key={
+                'uid': clinician_id
+            },
+            UpdateExpression='REMOVE requests[' + str(index) + ']',
             ReturnValues='ALL_NEW'
         )
         print(response)
