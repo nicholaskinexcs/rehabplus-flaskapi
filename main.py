@@ -22,6 +22,7 @@ api.add_resource(PatientSearch, '/patientSearch/<string:email>')
 api.add_resource(RequestProfiles, '/requestProfiles')
 api.add_resource(clearNotification, '/clearNotification')
 api.add_resource(clearPendingPatientRequest, '/clearPendingPatientRequest')
+api.add_resource(SurveyData, '/surveyData/<string:uid>')
 
 if __name__ == '__main__':
     app.run(host='172.20.10.3', port=5000, debug=True)

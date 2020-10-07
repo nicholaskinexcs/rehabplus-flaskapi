@@ -163,3 +163,29 @@ class clearPendingPatientRequest(Resource):
         )
         print(response)
         return response
+
+
+class SurveyData(Resource):
+    def patch(self, uid):
+        # currentItem = UserProfileData_table.scan(
+        #     FilterExpression=Attr('uid').eq(uid)
+        # )
+        # print(currentItem['Items'])
+        #
+        # if currentItem.len() != 0:
+        #     response = UserProfileData_table.put_item(Item=currentItem['Items'][0])
+        #     print(response['ResponseMetadata']['HTTPStatusCode'])
+
+        response = UserProfileData_table.update_item(
+            Key={
+                'uid': uid
+            },
+            UpdateExpression='SET ' + 'VAS' + '=list_append(if_not_exists(' + 'VAS' + ',:VASlist), :value)',
+            ExpressionAttributeValues={
+                ':value': ['yolo'],
+                ':VASlist': []
+            },
+            ReturnValues='ALL_NEW'
+        )
+        return response
+
