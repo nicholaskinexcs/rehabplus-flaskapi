@@ -1,3 +1,6 @@
+import json
+from decimal import Decimal
+
 from boto3.dynamodb.conditions import Key, Attr
 from flask import Flask, request
 from flask_restful import Resource, Api, reqparse, abort
@@ -28,12 +31,26 @@ UserProfileData_Dict = {}
 
 class UserProfileData(Resource):
     def get(self, uid):
-        response = UserProfileData_table.get_item(
-            Key={
-                'uid': uid
+        response=UserProfileData_table.query(
+            KeyConditionExpression=Key('uid').eq(uid),
+            ProjectionExpression='uid, email, firstName, LastName, mobile, #userRole, signedInStatus, taggedUser, '
+                                 'requests, sharedWorkouts, notifications, appointments, pastAppointments, '
+                                 'billingAddress, directPayments ',
+            ExpressionAttributeNames={
+                '#userRole': 'role'
             }
         )
-        return response['Item']
+        print(response)
+        return response['Items'][0]
+
+
+        # response = UserProfileData_table.get_item(
+        #     Key={
+        #         'uid': uid
+        #     }
+        # )
+        # print(response)
+        # return response['Item']
 
     def put(self, uid):
         userProfileData = request.get_json()
@@ -165,27 +182,24 @@ class clearPendingPatientRequest(Resource):
         return response
 
 
-class SurveyData(Resource):
+class AddSurveyData(Resource):
     def patch(self, uid):
-        # currentItem = UserProfileData_table.scan(
-        #     FilterExpression=Attr('uid').eq(uid)
-        # )
-        # print(currentItem['Items'])
-        #
-        # if currentItem.len() != 0:
-        #     response = UserProfileData_table.put_item(Item=currentItem['Items'][0])
-        #     print(response['ResponseMetadata']['HTTPStatusCode'])
-
+        data = request.get_json()
+        attr_name = data['attr_name']
+        print(type(attr_name))
+        attr_value = json.loads(json.dumps(data['attr_value']), parse_float=Decimal)
+        print(type(attr_value['vasScore']))
         response = UserProfileData_table.update_item(
             Key={
                 'uid': uid
             },
-            UpdateExpression='SET ' + 'VAS' + '=list_append(if_not_exists(' + 'VAS' + ',:VASlist), :value)',
+            UpdateExpression='SET ' + attr_name + '=list_append(if_not_exists(' + attr_name + ',:VASlist), :value)',
             ExpressionAttributeValues={
-                ':value': ['yolo'],
+                ':value': [attr_value],
                 ':VASlist': []
             },
-            ReturnValues='ALL_NEW'
+            ReturnValues='NONE'
         )
-        return response
+        print(response)
+        return response['ResponseMetadata']['HTTPStatusCode']
 
