@@ -1,6 +1,8 @@
+import decimal
 import json
 from decimal import Decimal
 
+import simplejson as simplejson
 from boto3.dynamodb.conditions import Key, Attr
 from flask import Flask, request
 from flask_restful import Resource, Api, reqparse, abort
@@ -33,24 +35,15 @@ class UserProfileData(Resource):
     def get(self, uid):
         response=UserProfileData_table.query(
             KeyConditionExpression=Key('uid').eq(uid),
-            ProjectionExpression='uid, email, firstName, LastName, mobile, #userRole, signedInStatus, taggedUser, '
+            ProjectionExpression='uid, email, firstName, lastName, mobile, #userRole, signedInStatus, taggedUser, '
                                  'requests, sharedWorkouts, notifications, appointments, pastAppointments, '
-                                 'billingAddress, directPayments ',
+                                 'billingAddress, directPayments',
             ExpressionAttributeNames={
                 '#userRole': 'role'
             }
         )
         print(response)
         return response['Items'][0]
-
-
-        # response = UserProfileData_table.get_item(
-        #     Key={
-        #         'uid': uid
-        #     }
-        # )
-        # print(response)
-        # return response['Item']
 
     def put(self, uid):
         userProfileData = request.get_json()
@@ -70,20 +63,26 @@ class UserProfileData(Resource):
             ExpressionAttributeValues={
                 ':value': [attr_value]
             },
-            ReturnValues='ALL_NEW'
+            ReturnValues='NONE'
         )
         return response
 
 
-class AllUserProfileData(Resource):
-    def get(self):
-        return UserProfileData_Dict
+# class AllUserProfileData(Resource):
+#     def get(self):
+#         return UserProfileData_Dict
 
 
 class AllPatientProfileData(Resource):
     def get(self, clinician_uid):
         response = UserProfileData_table.scan(
-            FilterExpression=Attr('taggedUser').contains(clinician_uid)
+            FilterExpression=Attr('taggedUser').contains(clinician_uid),
+            ProjectionExpression='uid, email, firstName, lastName, mobile, #userRole, signedInStatus, taggedUser, '
+                                 'requests, sharedWorkouts, notifications, appointments, pastAppointments, '
+                                 'billingAddress, directPayments',
+            ExpressionAttributeNames={
+                '#userRole': 'role'
+            }
         )
         print(response['Items'])
         return response['Items']
@@ -91,7 +90,14 @@ class AllPatientProfileData(Resource):
 
 class AllUserProfileData(Resource):
     def get(self):
-        response = UserProfileData_table.scan()
+        response = UserProfileData_table.scan(
+            ProjectionExpression='uid, email, firstName, lastName, mobile, #userRole, signedInStatus, taggedUser, '
+                                 'requests, sharedWorkouts, notifications, appointments, pastAppointments, '
+                                 'billingAddress, directPayments',
+            ExpressionAttributeNames={
+                '#userRole': 'role'
+            }
+        )
         print(response['Items'])
         return response['Items']
 
@@ -99,7 +105,13 @@ class AllUserProfileData(Resource):
 class PatientSearch(Resource):
     def get(self, email):
         response = UserProfileData_table.scan(
-            FilterExpression=Attr('email').eq(email)
+            FilterExpression=Attr('email').eq(email),
+            ProjectionExpression='uid, email, firstName, lastName, mobile, #userRole, signedInStatus, taggedUser, '
+                                 'requests, sharedWorkouts, notifications, appointments, pastAppointments, '
+                                 'billingAddress, directPayments',
+            ExpressionAttributeNames={
+                '#userRole': 'role'
+            }
         )
         print(response['Items'])
         return response['Items']
@@ -112,7 +124,13 @@ class RequestProfiles(Resource):
         print(request_list)
 
         response = UserProfileData_table.scan(
-            FilterExpression=Attr('uid').is_in(request_list)
+            FilterExpression=Attr('uid').is_in(request_list),
+            ProjectionExpression='uid, email, firstName, lastName, mobile, #userRole, signedInStatus, taggedUser, '
+                                 'requests, sharedWorkouts, notifications, appointments, pastAppointments, '
+                                 'billingAddress, directPayments',
+            ExpressionAttributeNames={
+                '#userRole': 'role'
+            }
         )
         print(response['Items'])
         return response['Items']
@@ -144,7 +162,7 @@ class clearNotification(Resource):
                 'uid': user_id
             },
             UpdateExpression='REMOVE notifications[' + str(index) + ']',
-            ReturnValues='ALL_NEW'
+            ReturnValues='NONE'
         )
         print(response)
         return response
@@ -176,30 +194,9 @@ class clearPendingPatientRequest(Resource):
                 'uid': clinician_id
             },
             UpdateExpression='REMOVE requests[' + str(index) + ']',
-            ReturnValues='ALL_NEW'
+            ReturnValues='NONE'
         )
         print(response)
         return response
 
-
-class AddSurveyData(Resource):
-    def patch(self, uid):
-        data = request.get_json()
-        attr_name = data['attr_name']
-        print(type(attr_name))
-        attr_value = json.loads(json.dumps(data['attr_value']), parse_float=Decimal)
-        print(type(attr_value['vasScore']))
-        response = UserProfileData_table.update_item(
-            Key={
-                'uid': uid
-            },
-            UpdateExpression='SET ' + attr_name + '=list_append(if_not_exists(' + attr_name + ',:VASlist), :value)',
-            ExpressionAttributeValues={
-                ':value': [attr_value],
-                ':VASlist': []
-            },
-            ReturnValues='NONE'
-        )
-        print(response)
-        return response['ResponseMetadata']['HTTPStatusCode']
 
