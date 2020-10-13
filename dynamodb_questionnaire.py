@@ -15,21 +15,20 @@ Primary_Column_Name = 'uid'
 dynamodb_DB = boto3.resource('dynamodb')
 UserProfileData_table = dynamodb_DB.Table(__TableName__)
 
+
 class AddSurveyData(Resource):
     def patch(self, uid):
         data = request.get_json()
         attr_name = data['attr_name']
-        print(type(attr_name))
         attr_value = json.loads(json.dumps(data['attr_value']), parse_float=Decimal)
-        print(type(attr_value['vasScore']))
         response = UserProfileData_table.update_item(
             Key={
                 'uid': uid
             },
-            UpdateExpression='SET ' + attr_name + '=list_append(if_not_exists(' + attr_name + ',:VASlist), :value)',
+            UpdateExpression='SET ' + attr_name + '=list_append(if_not_exists(' + attr_name + ',:SurveyList), :value)',
             ExpressionAttributeValues={
                 ':value': [attr_value],
-                ':VASlist': []
+                ':SurveyList': []
             },
             ReturnValues='NONE'
         )
@@ -42,7 +41,6 @@ class DecimalEncoder(json.JSONEncoder):
         if isinstance(o, decimal.Decimal):
             return float(o)
         return super(DecimalEncoder, self).default(o)
-
 
 
 class GetVASData(Resource):
@@ -65,4 +63,24 @@ class GetVASData(Resource):
         else:
             return json.loads(simplejson.dumps(response['Items']))
             # return response['Items']
+
+
+class GetKOOSData(Resource):
+    def get(self, uid):
+        response = UserProfileData_table.query(
+            KeyConditionExpression=Key('uid').eq(uid),
+            ProjectionExpression='KOOS',
+        )
+        print(bool(response['Items'][0]))
+        print(response['Items'])
+        print(response['Count'])
+        if response['Count'] == 1:
+            if bool(response['Items'][0]):
+                print(simplejson.dumps(response['Items']))
+                print(json.loads(simplejson.dumps(response['Items'])))
+                return json.loads(simplejson.dumps(response['Items']))
+            else:
+                return None
+        else:
+            return json.loads(simplejson.dumps(response['Items']))
 
