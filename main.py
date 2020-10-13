@@ -26,6 +26,7 @@ api.add_resource(clearPendingPatientRequest, '/clearPendingPatientRequest')
 api.add_resource(AddSurveyData, '/addSurveyData/<string:uid>')
 api.add_resource(GetVASData, '/getVASData/<string:uid>')
 api.add_resource(GetKOOSData, '/getKOOSData/<string:uid>')
+api.add_resource(GetBarthelData, '/getBarthelData/<string:uid>')
 
 if __name__ == '__main__':
     app.run(host='172.20.10.3', port=5000, debug=True)
