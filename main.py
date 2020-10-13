@@ -29,6 +29,7 @@ api.add_resource(GetKOOSData, '/getKOOSData/<string:uid>')
 api.add_resource(GetBarthelData, '/getBarthelData/<string:uid>')
 api.add_resource(GetRankinData, '/getRankinData/<string:uid>')
 api.add_resource(GetKSSPreOpData, '/getKSSPreOpData/<string:uid>')
+api.add_resource(GetKSSPostOpData, '/getKSSPostOpData/<string:uid>')
 
 if __name__ == '__main__':
     app.run(host='172.20.10.3', port=5000, debug=True)

@@ -143,3 +143,23 @@ class GetKSSPreOpData(Resource):
                 return None
         else:
             return json.loads(simplejson.dumps(response['Items']))
+
+
+class GetKSSPostOpData(Resource):
+    def get(self, uid):
+        response = UserProfileData_table.query(
+            KeyConditionExpression=Key('uid').eq(uid),
+            ProjectionExpression='KSSPostOp',
+        )
+        print(bool(response['Items'][0]))
+        print(response['Items'])
+        print(response['Count'])
+        if response['Count'] == 1:
+            if bool(response['Items'][0]):
+                print(simplejson.dumps(response['Items']))
+                print(json.loads(simplejson.dumps(response['Items'])))
+                return json.loads(simplejson.dumps(response['Items']))
+            else:
+                return None
+        else:
+            return json.loads(simplejson.dumps(response['Items']))
