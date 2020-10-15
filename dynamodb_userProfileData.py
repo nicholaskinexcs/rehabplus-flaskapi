@@ -33,7 +33,7 @@ UserProfileData_Dict = {}
 
 class UserProfileData(Resource):
     def get(self, uid):
-        response=UserProfileData_table.query(
+        response = UserProfileData_table.query(
             KeyConditionExpression=Key('uid').eq(uid),
             ProjectionExpression='uid, email, firstName, lastName, mobile, #userRole, signedInStatus, taggedUser, '
                                  'requests, sharedWorkouts, notifications, appointments, pastAppointments, '
@@ -200,3 +200,40 @@ class clearPendingPatientRequest(Resource):
         return response
 
 
+class UpdateFCMTokenData(Resource):
+    def patch(self, uid):
+        data = request.get_json()
+        attr_name = data['attr_name']
+        attr_value = data['attr_value']
+        response = UserProfileData_table.update_item(
+            Key={
+                'uid': uid
+            },
+            UpdateExpression='SET ' + attr_name + '=list_append(if_not_exists(' + attr_name + ',:FCMList), :value)',
+            ExpressionAttributeValues={
+                ':value': [attr_value],
+                ':FCMList': []
+            },
+            ReturnValues='NONE'
+        )
+        print(response)
+        return response['ResponseMetadata']['HTTPStatusCode']
+
+
+class ClearFCMTokenData(Resource):
+    def patch(self, uid):
+        data = request.get_json()
+        attr_name = data['attr_name']
+        attr_value = data['attr_value']
+        response = UserProfileData_table.update_item(
+            Key={
+                'uid': uid
+            },
+            UpdateExpression='SET ' + attr_name + '=:FCMList',
+            ExpressionAttributeValues={
+                ':FCMList': []
+            },
+            ReturnValues='NONE'
+        )
+        print(response)
+        return response['ResponseMetadata']['HTTPStatusCode']
