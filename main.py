@@ -33,6 +33,7 @@ api.add_resource(GetKSSPostOpData, '/getKSSPostOpData/<string:uid>')
 api.add_resource(UpdateFCMTokenData, '/updateDeviceToken/<string:uid>')
 api.add_resource(ClearFCMTokenData, '/clearDeviceToken/<string:uid>')
 api.add_resource(GetDeviceTokens, '/getDeviceTokens/<string:uid>')
+api.add_resource(GetTaggedUserDeviceTokens, '/getTaggedUserDeviceTokens')
 
 if __name__ == '__main__':
     app.run(host='172.20.10.3', port=5000, debug=True)

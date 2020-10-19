@@ -238,6 +238,7 @@ class ClearFCMTokenData(Resource):
         print(response)
         return response['ResponseMetadata']['HTTPStatusCode']
 
+
 class GetDeviceTokens(Resource):
     def get(self, uid):
         response = UserProfileData_table.query(
@@ -256,3 +257,17 @@ class GetDeviceTokens(Resource):
                 return None
         else:
             return json.loads(simplejson.dumps(response['Items']))
+
+
+class GetTaggedUserDeviceTokens(Resource):
+    def post(self):
+        data = request.get_json()
+        tagged_user_list = data['taggedUserList']
+        print(tagged_user_list)
+
+        response = UserProfileData_table.scan(
+            FilterExpression=Attr('uid').is_in(tagged_user_list),
+            ProjectionExpression='DeviceToken',
+        )
+        print(response['Items'])
+        return response['Items']
