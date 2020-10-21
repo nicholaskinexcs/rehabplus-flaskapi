@@ -43,7 +43,7 @@ class UserProfileData(Resource):
             }
         )
         print(response)
-        return response['Items'][0]
+        return json.loads(simplejson.dumps(response['Items'][0]))
 
     def put(self, uid):
         userProfileData = request.get_json()
@@ -84,8 +84,8 @@ class AllPatientProfileData(Resource):
                 '#userRole': 'role'
             }
         )
-        print(response['Items'])
-        return response['Items']
+        print(json.loads(simplejson.dumps(response['Items'])))
+        return json.loads(simplejson.dumps(response['Items']))
 
 
 class AllUserProfileData(Resource):
