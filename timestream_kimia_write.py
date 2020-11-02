@@ -1,9 +1,3 @@
-import decimal
-import json
-from decimal import Decimal
-
-import simplejson as simplejson
-from boto3.dynamodb.conditions import Key, Attr
 from flask import Flask, request
 from flask_restful import Resource, Api, reqparse, abort
 import boto3
@@ -15,10 +9,11 @@ DATABASE_NAME = 'Timestream_KIMIA'
 TABLE_NAME = 'KIMIA_angle_data'
 
 
-class write_records_with_common_attributes(Resource):
+class WriteRecordsWithCommonAttributes(Resource):
     def post(self):
         # arguments to pass in from client: user_id, startTime, endTime, time, fusedAngle, flexAngle, perpAngle
         data = request.get_json()
+        user_id = data['user_id']
         time_start = data['startTime']
         time_end = data['endTime']
         angle_data_list = data['angleDataList']
@@ -29,7 +24,7 @@ class write_records_with_common_attributes(Resource):
 
         # current_time = self._current_milli_time()
         dimensions = [
-            {'Name': 'uid', 'Value': 'user_id'},
+            {'Name': 'uid', 'Value': user_id},
             {'Name': 'time_start', 'Value': time_start},
             {'Name': 'time_end', 'Value': time_end}
         ]
