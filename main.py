@@ -39,4 +39,4 @@ api.add_resource(GetTaggedUserDeviceTokens, '/getTaggedUserDeviceTokens')
 api.add_resource(write_records_with_common_attributes, '/storeAngleData')
 
 if __name__ == '__main__':
-    app.run(host='172.20.10.3', port=5000, debug=True)
+    app.run(host='172.20.10.4', port=5000, debug=True)
