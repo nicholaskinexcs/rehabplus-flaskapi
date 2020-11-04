@@ -1,6 +1,7 @@
 from flask import Flask, request
 from flask_restful import Resource, Api, reqparse, abort
 import boto3
+import json
 from timestream_query_model import *
 
 session = boto3.Session()
@@ -21,8 +22,8 @@ class RunQueryBasic1(Resource):
         unique_session_start_time = self.QuerySessionStartTime(user_id)
         print(unique_session_start_time)
         # TODO remove the [0] list index in the args, maybe no need
-        self.QueryRecordForSession(unique_session_start_time[0], user_id)
-        return 200
+        session_record = self.QueryRecordForSession(unique_session_start_time[0], user_id)
+        return json.dumps(session_record[0].to_json())
 
     def QuerySessionStartTime(self, user_id):
         query_session_start_time = f"""
@@ -40,18 +41,30 @@ class RunQueryBasic1(Resource):
 
     def QueryRecordForSession(self, unique_session_start_time, user_id):
         query_record_session = f"""
-                    SELECT measure_name, measure_value::double, time, chart_time, time_start FROM {DATABASE_NAME}.{TABLE_NAME}
+                    SELECT measure_name, measure_value::double, time, chart_time, time_start, time_end FROM {DATABASE_NAME}.{TABLE_NAME}
                     WHERE uid = '{user_id}' AND time_start = '{unique_session_start_time}'
                     ORDER BY time DESC
                     """
         page_iterator = paginator.paginate(QueryString=query_record_session)
         print('RECORD STARTS HERE')
+        session_records = []
         for page in page_iterator:
             # print(page)
-            flex_list = self._parse_query_result_record(page)
-            print(flex_list)
-            print(len(flex_list))
+            record_model = self._parse_query_result_record(page)
+            session_records.append(record_model)
+            print("FLEX ANGLES")
+            print(record_model.flex_angle_list)
+            print("FUSED ANGLES")
+            print(record_model.fused_angle_list)
+            print("PERP ANGLES")
+            print(record_model.perp_angle_list)
+            print(len(record_model.flex_angle_list))
+            print(len(record_model.fused_angle_list))
+            print(len(record_model.fused_angle_list))
+            print(record_model.time_start)
+            print(record_model.time_end)
         print('RECORD ENDS HERE')
+        return session_records
 
     def _parse_query_result_session(self, query_result):
         time_start_keys = []
@@ -63,14 +76,24 @@ class RunQueryBasic1(Resource):
     def _parse_query_result_record(self, query_result):
         # TODO not only can do flex_list
         column_info = query_result['ColumnInfo']
+        time_start = query_result['Rows'][0]['Data'][4]
+        time_end = query_result['Rows'][0]['Data'][5]
         flex_angle_list = []
+        fused_angle_list = []
+        perp_angle_list = []
         for row in query_result['Rows']:
             data = row['Data']
             angle_type = data[0]['ScalarValue']
+            angle_value = data[1]['ScalarValue']
+            time = data[2]['ScalarValue']
+            chart_time = data[3]['ScalarValue']
             if angle_type == 'flex_angle':
-                angle_value = data[1]['ScalarValue']
-                flex_angle_list.append(angle_value)
-        return flex_angle_list
+                flex_angle_list.append([angle_value, chart_time, time])
+            elif angle_type == 'fused_angle':
+                fused_angle_list.append([angle_value, chart_time, time])
+            elif angle_type == 'perp_angle':
+                perp_angle_list.append([angle_value, chart_time, time])
+        return TimestreamQueryModel(flex_angle_list=flex_angle_list, fused_angle_list=fused_angle_list, perp_angle_list=perp_angle_list, time_start=time_start, time_end=time_end)
 
     def _parse_row(self, column_info, row):
         data = row['Data']
