@@ -38,7 +38,8 @@ api.add_resource(ClearFCMTokenData, '/clearDeviceToken/<string:uid>')
 api.add_resource(GetDeviceTokens, '/getDeviceTokens/<string:uid>')
 api.add_resource(GetTaggedUserDeviceTokens, '/getTaggedUserDeviceTokens')
 api.add_resource(WriteRecordsWithCommonAttributes, '/storeAngleData')
-api.add_resource(RunQueryBasic1, '/queryAngleData')
+api.add_resource(QuerySessionRecord, '/queryAngleData')
+api.add_resource(QueryKIMIASessions, '/querySessionData')
 
 if __name__ == '__main__':
     app.run(host='172.20.10.4', port=5000, debug=True)

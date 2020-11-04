@@ -14,16 +14,14 @@ TABLE_NAME = 'KIMIA_angle_data'
 SELECT_ALL = f"SELECT * FROM {DATABASE_NAME}.{TABLE_NAME}"
 
 
-class RunQueryBasic1(Resource):
+class QueryKIMIASessions(Resource):
     def post(self):
         data = request.get_json()
         user_id = data['user_id']
         print(user_id)
         unique_session_start_time = self.QuerySessionStartTime(user_id)
         print(unique_session_start_time)
-        # TODO remove the [0] list index in the args, maybe no need
-        session_record = self.QueryRecordForSession(unique_session_start_time[0], user_id)
-        return json.dumps(session_record[0].to_json())
+        return unique_session_start_time
 
     def QuerySessionStartTime(self, user_id):
         query_session_start_time = f"""
@@ -38,6 +36,24 @@ class RunQueryBasic1(Resource):
             record_keys.extend(time_start_keys)
         unique_session_start_time = list(dict.fromkeys(record_keys))
         return unique_session_start_time
+
+    def _parse_query_result_session(self, query_result):
+        time_start_keys = []
+        for row in query_result['Rows']:
+            data = row['Data'][0]['ScalarValue']
+            time_start_keys.append(data)
+        return time_start_keys
+
+
+class QuerySessionRecord(Resource):
+    def post(self):
+        data = request.get_json()
+        user_id = data['user_id']
+        unique_session_start_time = data['sessionStartTime']
+        print(user_id)
+        print(unique_session_start_time)
+        session_record = self.QueryRecordForSession(unique_session_start_time, user_id)
+        return session_record[0].to_json()
 
     def QueryRecordForSession(self, unique_session_start_time, user_id):
         query_record_session = f"""
@@ -66,18 +82,10 @@ class RunQueryBasic1(Resource):
         print('RECORD ENDS HERE')
         return session_records
 
-    def _parse_query_result_session(self, query_result):
-        time_start_keys = []
-        for row in query_result['Rows']:
-            data = row['Data'][0]['ScalarValue']
-            time_start_keys.append(data)
-        return time_start_keys
-
     def _parse_query_result_record(self, query_result):
-        # TODO not only can do flex_list
         column_info = query_result['ColumnInfo']
-        time_start = query_result['Rows'][0]['Data'][4]
-        time_end = query_result['Rows'][0]['Data'][5]
+        time_start = query_result['Rows'][0]['Data'][4]['ScalarValue']
+        time_end = query_result['Rows'][0]['Data'][5]['ScalarValue']
         flex_angle_list = []
         fused_angle_list = []
         perp_angle_list = []
@@ -93,17 +101,6 @@ class RunQueryBasic1(Resource):
                 fused_angle_list.append([angle_value, chart_time, time])
             elif angle_type == 'perp_angle':
                 perp_angle_list.append([angle_value, chart_time, time])
-        return TimestreamQueryModel(flex_angle_list=flex_angle_list, fused_angle_list=fused_angle_list, perp_angle_list=perp_angle_list, time_start=time_start, time_end=time_end)
+        return TimestreamQueryModel(flex_angle_list=flex_angle_list, fused_angle_list=fused_angle_list,
+                                    perp_angle_list=perp_angle_list, time_start=time_start, time_end=time_end)
 
-    def _parse_row(self, column_info, row):
-        data = row['Data']
-        row_output = []
-        for j in range(len(data)):
-            info = column_info[j]
-            datum = data[j]
-            row_output.append(self._parse_datum(info, datum))
-        print(row_output)
-
-    def _parse_datum(self, info, datum):
-        # TODO make json of col-row data pairs and add it to row_output
-        return "{}"
