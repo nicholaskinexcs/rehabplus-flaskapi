@@ -1,6 +1,7 @@
 from flask import Flask, request
 from flask_restful import Resource, Api, reqparse, abort
 import boto3
+import datetime
 
 session = boto3.Session()
 client = session.client("timestream-write", region_name='eu-west-1')
@@ -14,8 +15,8 @@ class WriteRecordsWithCommonAttributes(Resource):
         # arguments to pass in from client: user_id, startTime, endTime, time, fusedAngle, flexAngle, perpAngle
         data = request.get_json()
         user_id = data['user_id']
-        time_start = data['startTime']
-        time_end = data['endTime']
+        time_start = datetime.datetime.utcfromtimestamp(data['startTime'] / 1000.0).strftime('%Y-%m-%d %H:%M:%S.%f')
+        time_end = datetime.datetime.utcfromtimestamp(data['endTime'] / 1000.0).strftime('%Y-%m-%d %H:%M:%S.%f')
         angle_data_list = data['angleDataList']
         print('startTime' + time_start)
         print('endTime' + time_end)
@@ -23,13 +24,15 @@ class WriteRecordsWithCommonAttributes(Resource):
         print("Writing records extracting common attributes")
 
         # current_time = self._current_milli_time()
-        dimensions = [
-            {'Name': 'uid', 'Value': user_id},
-            {'Name': 'time_start', 'Value': time_start},
-            {'Name': 'time_end', 'Value': time_end}
-        ]
 
         for angle_data in angle_data_list:
+            dimensions = [
+                {'Name': 'uid', 'Value': user_id},
+                {'Name': 'time_start', 'Value': time_start},
+                {'Name': 'time_end', 'Value': time_end},
+                {'Name': 'chart_time', 'Value': str(angle_data['time'])}
+            ]
+
             common_attributes = {
                 'Dimensions': dimensions,
                 'MeasureValueType': 'DOUBLE',

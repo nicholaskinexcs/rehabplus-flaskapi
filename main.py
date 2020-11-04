@@ -5,7 +5,7 @@ from auth import*
 from dynamodb_userProfileData import*
 from dynamodb_questionnaire import*
 from timestream_kimia_write import*
-from timestream_kiimia_query import*
+from timestream_kimia_query import*
 #
 app = Flask(__name__)
 api = Api(app)
