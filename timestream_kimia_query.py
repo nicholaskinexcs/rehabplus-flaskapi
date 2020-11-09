@@ -59,7 +59,7 @@ class QuerySessionRecord(Resource):
         query_record_session = f"""
                     SELECT measure_name, measure_value::double, time, chart_time, time_start, time_end FROM {DATABASE_NAME}.{TABLE_NAME}
                     WHERE uid = '{user_id}' AND time_start = '{unique_session_start_time}'
-                    ORDER BY time DESC
+                    ORDER BY time ASC
                     """
         page_iterator = paginator.paginate(QueryString=query_record_session)
         print('RECORD STARTS HERE')
@@ -69,11 +69,11 @@ class QuerySessionRecord(Resource):
             record_model = self._parse_query_result_record(page)
             session_records.append(record_model)
             print("FLEX ANGLES")
-            print(record_model.flex_angle_list)
+            print(record_model.flex_angle_list.pop())
             print("FUSED ANGLES")
-            print(record_model.fused_angle_list)
+            print(record_model.fused_angle_list.pop())
             print("PERP ANGLES")
-            print(record_model.perp_angle_list)
+            print(record_model.perp_angle_list.pop())
             print(len(record_model.flex_angle_list))
             print(len(record_model.fused_angle_list))
             print(len(record_model.fused_angle_list))
@@ -84,8 +84,8 @@ class QuerySessionRecord(Resource):
 
     def _parse_query_result_record(self, query_result):
         column_info = query_result['ColumnInfo']
-        time_start = query_result['Rows'][0]['Data'][4]['ScalarValue']
-        time_end = query_result['Rows'][0]['Data'][5]['ScalarValue']
+        time_start = query_result['Rows'][-1]['Data'][4]['ScalarValue']
+        time_end = query_result['Rows'][-1]['Data'][5]['ScalarValue']
         flex_angle_list = []
         fused_angle_list = []
         perp_angle_list = []

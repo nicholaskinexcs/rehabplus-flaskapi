@@ -40,6 +40,8 @@ api.add_resource(GetTaggedUserDeviceTokens, '/getTaggedUserDeviceTokens')
 api.add_resource(WriteRecordsWithCommonAttributes, '/storeAngleData')
 api.add_resource(QuerySessionRecord, '/queryAngleData')
 api.add_resource(QueryKIMIASessions, '/querySessionData')
+api.add_resource(WriteKIMIARecords, '/storeKIMIAAngleData')
+api.add_resource(WriteKIMIARecordsEndSession, '/storeKIMIAAngleDataEndSession')
 
 if __name__ == '__main__':
     app.run(host='172.20.10.4', port=5000, debug=True)

@@ -62,3 +62,102 @@ class WriteRecordsWithCommonAttributes(Resource):
             print("WriteRecords Status: [%s]" % result['ResponseMetadata']['HTTPStatusCode'])
 
         return 200
+
+
+class WriteKIMIARecords(Resource):
+    def post(self):
+        # arguments to pass in from client: user_id, startTime, endTime, time, fusedAngle, flexAngle, perpAngle
+        data = request.get_json()
+        user_id = data['user_id']
+        time_start = datetime.datetime.utcfromtimestamp(data['startTime'] / 1000.0).strftime('%Y-%m-%d %H:%M:%S.%f')
+        angle_data = data['angleData']
+        print('startTime' + time_start)
+        print(datetime.datetime.utcfromtimestamp(angle_data['time'] / 1000.0).strftime('%Y-%m-%d %H:%M:%S.%f'))
+        print(angle_data['flexAngle'])
+        # print("Writing records extracting common attributes")
+
+        dimensions = [
+            {'Name': 'uid', 'Value': user_id},
+            {'Name': 'time_start', 'Value': time_start},
+            {'Name': 'time_end', 'Value': "NULL"},
+            {'Name': 'chart_time', 'Value': str(angle_data['time'])}
+        ]
+
+        common_attributes = {
+            'Dimensions': dimensions,
+            'MeasureValueType': 'DOUBLE',
+            'Time': str(angle_data['timestamp']),
+            'TimeUnit': 'MILLISECONDS'
+        }
+
+        fused_angle = {
+            'MeasureName': 'fused_angle',
+            'MeasureValue': str(angle_data['fusedAngle'])
+        }
+
+        flex_angle = {
+            'MeasureName': 'flex_angle',
+            'MeasureValue': str(angle_data['flexAngle'])
+        }
+
+        perp_angle = {
+            'MeasureName': 'perp_angle',
+            'MeasureValue': str(angle_data['perpAngle'])
+        }
+
+        records = [fused_angle, flex_angle, perp_angle]
+
+        result = client.write_records(DatabaseName=DATABASE_NAME, TableName=TABLE_NAME,
+                                      Records=records, CommonAttributes=common_attributes)
+        print("WriteRecords Status: [%s]" % result['ResponseMetadata']['HTTPStatusCode'])
+
+        return 200
+
+
+class WriteKIMIARecordsEndSession(Resource):
+    def post(self):
+        # arguments to pass in from client: user_id, startTime, endTime, time, fusedAngle, flexAngle, perpAngle
+        data = request.get_json()
+        user_id = data['user_id']
+        time_start = datetime.datetime.utcfromtimestamp(data['startTime'] / 1000.0).strftime('%Y-%m-%d %H:%M:%S.%f')
+        time_end = datetime.datetime.utcfromtimestamp(data['endTime'] / 1000.0).strftime('%Y-%m-%d %H:%M:%S.%f')
+        print('startTime' + time_start)
+        print('endTime' + time_end)
+        # print("Writing records extracting common attributes")
+
+        dimensions = [
+            {'Name': 'uid', 'Value': user_id},
+            {'Name': 'time_start', 'Value': time_start},
+            {'Name': 'time_end', 'Value': time_end},
+            {'Name': 'chart_time', 'Value': "NULL"}
+        ]
+
+        common_attributes = {
+            'Dimensions': dimensions,
+            'MeasureValueType': 'DOUBLE',
+            'Time': str(data['endTime']),
+            'TimeUnit': 'MILLISECONDS'
+        }
+
+        fused_angle = {
+            'MeasureName': 'fused_angle',
+            'MeasureValue': str('0')
+        }
+
+        flex_angle = {
+            'MeasureName': 'flex_angle',
+            'MeasureValue': str('0')
+        }
+
+        perp_angle = {
+            'MeasureName': 'perp_angle',
+            'MeasureValue': str('0')
+        }
+
+        records = [fused_angle, flex_angle, perp_angle]
+
+        result = client.write_records(DatabaseName=DATABASE_NAME, TableName=TABLE_NAME,
+                                      Records=records, CommonAttributes=common_attributes)
+        print("WriteRecords Status: [%s]" % result['ResponseMetadata']['HTTPStatusCode'])
+
+        return 200
