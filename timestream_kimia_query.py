@@ -14,35 +14,35 @@ TABLE_NAME = 'KIMIA_angle_data'
 SELECT_ALL = f"SELECT * FROM {DATABASE_NAME}.{TABLE_NAME}"
 
 
-class QueryKIMIASessions(Resource):
-    def post(self):
-        data = request.get_json()
-        user_id = data['user_id']
-        print(user_id)
-        unique_session_start_time = self.QuerySessionStartTime(user_id)
-        print(unique_session_start_time)
-        return unique_session_start_time
-
-    def QuerySessionStartTime(self, user_id):
-        query_session_start_time = f"""
-                            SELECT time_start FROM {DATABASE_NAME}.{TABLE_NAME}
-                            WHERE uid = '{user_id}'
-                            ORDER BY time DESC
-                            """
-        page_iterator = paginator.paginate(QueryString=query_session_start_time)
-        record_keys = []
-        for page in page_iterator:
-            time_start_keys = self._parse_query_result_session(page)
-            record_keys.extend(time_start_keys)
-        unique_session_start_time = list(dict.fromkeys(record_keys))
-        return unique_session_start_time
-
-    def _parse_query_result_session(self, query_result):
-        time_start_keys = []
-        for row in query_result['Rows']:
-            data = row['Data'][0]['ScalarValue']
-            time_start_keys.append(data)
-        return time_start_keys
+# class QueryKIMIASessions(Resource):
+#     def post(self):
+#         data = request.get_json()
+#         user_id = data['user_id']
+#         print(user_id)
+#         unique_session_start_time = self.QuerySessionStartTime(user_id)
+#         print(unique_session_start_time)
+#         return unique_session_start_time
+#
+#     def QuerySessionStartTime(self, user_id):
+#         query_session_start_time = f"""
+#                             SELECT time_start FROM {DATABASE_NAME}.{TABLE_NAME}
+#                             WHERE uid = '{user_id}'
+#                             ORDER BY time DESC
+#                             """
+#         page_iterator = paginator.paginate(QueryString=query_session_start_time)
+#         record_keys = []
+#         for page in page_iterator:
+#             time_start_keys = self._parse_query_result_session(page)
+#             record_keys.extend(time_start_keys)
+#         unique_session_start_time = list(dict.fromkeys(record_keys))
+#         return unique_session_start_time
+#
+#     def _parse_query_result_session(self, query_result):
+#         time_start_keys = []
+#         for row in query_result['Rows']:
+#             data = row['Data'][0]['ScalarValue']
+#             time_start_keys.append(data)
+#         return time_start_keys
 
 
 class QuerySessionRecord(Resource):
