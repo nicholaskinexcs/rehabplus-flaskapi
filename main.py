@@ -6,6 +6,7 @@ from dynamodb_userProfileData import*
 from dynamodb_questionnaire import*
 from timestream_kimia_write import*
 from timestream_kimia_query import*
+from timestream_kimia_position_events_write import*
 #
 app = Flask(__name__)
 api = Api(app)
@@ -42,6 +43,7 @@ api.add_resource(QuerySessionRecord, '/queryAngleData')
 api.add_resource(QueryKIMIASessions, '/querySessionData')
 api.add_resource(WriteKIMIARecords, '/storeKIMIAAngleData')
 api.add_resource(WriteKIMIARecordsEndSession, '/storeKIMIAAngleDataEndSession')
+api.add_resource(WritePositionEventsRecords, '/storeKIMIAPositionEvent')
 
 if __name__ == '__main__':
     app.run(host='172.20.10.4', port=5000, debug=True)
