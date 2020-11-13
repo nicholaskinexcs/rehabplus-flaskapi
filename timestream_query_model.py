@@ -18,3 +18,23 @@ class TimestreamQueryModel:
                 "perp_angle_list": self.perp_angle_list,
                 "time_start": self.time_start,
                 "time_end": self.time_end}, 200
+
+
+class TimestreamQueryAccDataModel:
+    def __init__(self, x_acc_list, y_acc_list, z_acc_list, temperature_list, position_list, pitch_list, time_start):
+        self.x_acc_list = x_acc_list
+        self.y_acc_list = y_acc_list
+        self.z_acc_list = z_acc_list
+        self.temperature_list = temperature_list
+        self.position_list = position_list
+        self.pitch_list = pitch_list
+        self.time_start = time_start
+
+    def to_json(self):
+        return {"x_acc_list": self.x_acc_list,
+                "y_acc_list": self.y_acc_list,
+                "z_acc_list": self.z_acc_list,
+                "temperature_list": self.temperature_list,
+                "position_list": self.position_list,
+                "pitch_list": self.pitch_list,
+                "time_start": self.time_start}, 200

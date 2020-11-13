@@ -48,5 +48,5 @@ class WriteBendEventsRecords(Resource):
 
         result = client.write_records(DatabaseName=DATABASE_NAME, TableName=TABLE_NAME,
                                       Records=records, CommonAttributes=common_attributes)
-        print("WriteRecords_Position_Event Status: [%s]" % result['ResponseMetadata']['HTTPStatusCode'])
+        print("WriteRecords_Bend_Event Status: [%s]" % result['ResponseMetadata']['HTTPStatusCode'])
         return 200
