@@ -34,7 +34,7 @@ class QuerySessionBendEventRecord(Resource):
             # print(page)
             position_event_model = self._parse_query_result_record(page)
             session_records.extend(position_event_model)
-        print(session_records)
+        # print(session_records)
         print('RECORD ENDS HERE')
         return session_records
 

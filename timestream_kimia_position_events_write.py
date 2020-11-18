@@ -23,19 +23,23 @@ class WritePositionEventsRecords(Resource):
         dimensions = [
             {'Name': 'uid', 'Value': user_id},
             {'Name': 'time_start', 'Value': time_start},
-            {'Name': 'chart_time', 'Value': str(position_event['time'])}
+            {'Name': 'chart_time', 'Value': str(position_event['time'])},
+            {'Name': 'device_date_time', 'Value': datetime.datetime.utcfromtimestamp(position_event['dateTime'] / 1000.0).strftime('%Y-%m-%d %H:%M:%S.%f')},
+            {'Name': 'address', 'Value': position_event['address']},
+            {'Name': 'realTime', 'Value': str(position_event['realTime'])},
+            {'Name': 'bufferedData', 'Value': str(position_event['bufferedData'])}
         ]
 
         common_attributes = {
             'Dimensions': dimensions,
             'MeasureValueType': 'VARCHAR',
-            'Time': str(position_event['timestamp']),
+            'Time': str(position_event['systemDateTime']),
             'TimeUnit': 'MILLISECONDS'
         }
 
         position_event_record = {
             'MeasureName': 'position_event',
-            'MeasureValue': str(position_event['name'])
+            'MeasureValue': str(position_event['bendType'])
         }
 
         records = [position_event_record]

@@ -43,7 +43,7 @@ class QuerySessionAccDataRecord(Resource):
         count = 0
         for page in page_iterator:
             count += 1
-            print(page)
+            # print(page)
             page_result = self._parse_query_result_record(page)
             if len(page_result) != 0:
                 x_acc_list.extend(page_result[0])

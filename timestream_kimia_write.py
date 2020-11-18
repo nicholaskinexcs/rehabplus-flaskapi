@@ -30,7 +30,9 @@ class WriteRecordsWithCommonAttributes(Resource):
                 {'Name': 'uid', 'Value': user_id},
                 {'Name': 'time_start', 'Value': time_start},
                 {'Name': 'time_end', 'Value': time_end},
-                {'Name': 'chart_time', 'Value': str(angle_data['time'])}
+                {'Name': 'chart_time', 'Value': str(angle_data['time'])},
+                {'Name': 'state', 'Value': str(angle_data['state'])},
+                {'Name': 'address', 'Value': angle_data['address']}
             ]
 
             common_attributes = {

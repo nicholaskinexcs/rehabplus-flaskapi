@@ -74,11 +74,12 @@ class QuerySessionRecord(Resource):
             # print(page)
             count += 1
             page_result = self._parse_query_result_record(page)
-            flex_angle_list.extend(page_result[0])
-            fused_angle_list.extend(page_result[1])
-            perp_angle_list.extend(page_result[2])
-            time_start = page_result[3]
-            time_end = page_result[4]
+            if len(page_result) != 0:
+                flex_angle_list.extend(page_result[0])
+                fused_angle_list.extend(page_result[1])
+                perp_angle_list.extend(page_result[2])
+                time_start = page_result[3]
+                time_end = page_result[4]
         flex_angle_list.pop()
         fused_angle_list.pop()
         perp_angle_list.pop()
@@ -91,23 +92,26 @@ class QuerySessionRecord(Resource):
         return session_records
 
     def _parse_query_result_record(self, query_result):
-        column_info = query_result['ColumnInfo']
-        time_start = query_result['Rows'][-1]['Data'][4]['ScalarValue']
-        time_end = query_result['Rows'][-1]['Data'][5]['ScalarValue']
-        flex_angle_list = []
-        fused_angle_list = []
-        perp_angle_list = []
-        for row in query_result['Rows']:
-            data = row['Data']
-            angle_type = data[0]['ScalarValue']
-            angle_value = data[1]['ScalarValue']
-            time = data[2]['ScalarValue']
-            chart_time = data[3]['ScalarValue']
-            if angle_type == 'flex_angle':
-                flex_angle_list.append([angle_value, chart_time, time])
-            elif angle_type == 'fused_angle':
-                fused_angle_list.append([angle_value, chart_time, time])
-            elif angle_type == 'perp_angle':
-                perp_angle_list.append([angle_value, chart_time, time])
-        return [flex_angle_list, fused_angle_list, perp_angle_list, time_start, time_end]
+        if len(query_result['Rows']) != 0:
+            column_info = query_result['ColumnInfo']
+            time_start = query_result['Rows'][-1]['Data'][4]['ScalarValue']
+            time_end = query_result['Rows'][-1]['Data'][5]['ScalarValue']
+            flex_angle_list = []
+            fused_angle_list = []
+            perp_angle_list = []
+            for row in query_result['Rows']:
+                data = row['Data']
+                angle_type = data[0]['ScalarValue']
+                angle_value = data[1]['ScalarValue']
+                time = data[2]['ScalarValue']
+                chart_time = data[3]['ScalarValue']
+                if angle_type == 'flex_angle':
+                    flex_angle_list.append([angle_value, chart_time, time])
+                elif angle_type == 'fused_angle':
+                    fused_angle_list.append([angle_value, chart_time, time])
+                elif angle_type == 'perp_angle':
+                    perp_angle_list.append([angle_value, chart_time, time])
+            return [flex_angle_list, fused_angle_list, perp_angle_list, time_start, time_end]
+        else:
+            return []
 

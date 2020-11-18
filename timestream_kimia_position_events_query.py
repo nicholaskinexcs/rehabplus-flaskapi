@@ -24,7 +24,7 @@ class QueryKIMIASessions(Resource):
         query_session_start_time = f"""
                             SELECT time_start FROM {DATABASE_NAME}.{TABLE_NAME}
                             WHERE uid = '{user_id}'
-                            ORDER BY time DESC
+                            ORDER BY time ASC
                             """
         page_iterator = paginator.paginate(QueryString=query_session_start_time)
         record_keys = []
@@ -65,7 +65,7 @@ class QuerySessionPositionEventRecord(Resource):
             # print(page)
             position_event_model = self._parse_query_result_record(page)
             session_records.extend(position_event_model)
-        print(session_records)
+        # print(session_records)
         print('RECORD ENDS HERE')
         return session_records
 
