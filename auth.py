@@ -294,25 +294,31 @@ class Login(Resource):
         # # # Store device keys
         # # # Step 6:
         # # # Confirm_Device
-        aws = AWSSRP(username=email, password=password, pool_id=USER_POOL_ID,
-                     client_id=CLIENT_ID, client=client)
-        response = aws.authenticate_user()
-        # print(response['AuthenticationResult'].keys())
-
-        deviceKey = response['AuthenticationResult']['NewDeviceMetadata']['DeviceKey']
-        deviceGroupKey = response['AuthenticationResult']['NewDeviceMetadata']['DeviceGroupKey']
-        accessToken = response['AuthenticationResult']['AccessToken']
-        print(accessToken)
-        # print(deviceKey)
-
-        device_password, device_secret_verifier_config = generate_hash_device(deviceGroupKey, deviceKey)
         try:
+            aws = AWSSRP(username=email, password=password, pool_id=USER_POOL_ID,
+                     client_id=CLIENT_ID, client=client)
+            response = aws.authenticate_user()
+            # print(response['AuthenticationResult'].keys())
+
+            deviceKey = response['AuthenticationResult']['NewDeviceMetadata']['DeviceKey']
+            deviceGroupKey = response['AuthenticationResult']['NewDeviceMetadata']['DeviceGroupKey']
+            accessToken = response['AuthenticationResult']['AccessToken']
+            print(accessToken)
+            # print(deviceKey)
+
+            device_password, device_secret_verifier_config = generate_hash_device(deviceGroupKey, deviceKey)
+
             response = client.confirm_device(
                 AccessToken=accessToken,
                 DeviceKey=deviceKey,
                 DeviceSecretVerifierConfig=device_secret_verifier_config,
                 DeviceName='Redmi Monday'
             )
+        except client.exceptions.NotAuthorizedException as e:
+            return {"error": True,
+                    "success": False,
+                    "data": None,
+                    "message": "Incorrect Username or Password "}, 500
         except Exception as e:
             return {"error": True,
                     "success": False,
