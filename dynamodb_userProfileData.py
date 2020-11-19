@@ -12,7 +12,7 @@ __TableName__ = 'UserProfileData'
 Primary_Column_Name = 'uid'
 
 # client = boto3.client('dynamodb')
-dynamodb_DB = boto3.resource('dynamodb')
+dynamodb_DB = boto3.resource('dynamodb', region_name="ap-southeast-1")
 UserProfileData_table = dynamodb_DB.Table(__TableName__)
 
 

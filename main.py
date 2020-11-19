@@ -56,4 +56,4 @@ api.add_resource(WriteAccDataRecords, '/storeKIMIAAccData')
 api.add_resource(QuerySessionAccDataRecord, '/queryAccData')
 
 if __name__ == '__main__':
-    app.run(host='172.20.10.4', port=5000, debug=True)
+    app.run(host='172.20.10.12', port=28, debug=True)
